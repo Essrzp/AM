@@ -19,6 +19,36 @@ client.once('ready', async () => {
         .setDescription('Open a ticket to buy, apply for selling, report a product issue, or other.')
         .setColor('Blue');
 
+    const channel = await client.channels.fetch('1484291971244757215'); // your ticket channel ID
+
+const embed = new EmbedBuilder()
+    .setTitle('[T.ASTRA] TICKET')
+    .setDescription('Open a ticket to buy, apply for selling, report a product issue, or other.')
+    .setColor('Blue');
+
+const select = new StringSelectMenuBuilder()
+    .setCustomId('ticket-select')
+    .setPlaceholder('Select an option')
+    .addOptions([
+        { label: 'BUY', value: 'buy', emoji: '💰' },
+        { label: 'SELL', value: 'sell', emoji: '🛒' },
+        { label: 'Product invalid', value: 'invalid', emoji: '❌' },
+        { label: 'Other', value: 'other', emoji: '📝' },
+    ]);
+
+const button = new ButtonBuilder()
+    .setCustomId('ticket-open')
+    .setLabel('Open')
+    .setStyle(ButtonStyle.Success);
+
+await channel.send({
+    embeds: [embed],
+    components: [
+        new ActionRowBuilder().addComponents(select),
+        new ActionRowBuilder().addComponents(button)
+    ]
+});
+
     const select = new StringSelectMenuBuilder()
         .setCustomId('ticket-select')
         .setPlaceholder('Select an option')
