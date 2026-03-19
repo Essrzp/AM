@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { 
     Client, GatewayIntentBits, Partials, ActionRowBuilder, 
     StringSelectMenuBuilder, ButtonBuilder, ButtonStyle, 
@@ -9,17 +10,16 @@ const client = new Client({
     partials: [Partials.Channel],
 });
 
-// YOUR CONFIG
-const TICKET_CHANNEL = '1484291971244757215'; // Embed channel
-const TICKET_CATEGORY = '1484291931373572096'; // Tickets category
-const CLAIM_ROLE = '1484217404140683316'; // Role that can claim
-const ADD_ROLE_ON_CLAIM = '1484213244007682191'; // Role added after claim
+// Config
+const TICKET_CHANNEL = '1484291971244757215';
+const TICKET_CATEGORY = '1484291931373572096';
+const CLAIM_ROLE = '1484217404140683316';
+const ADD_ROLE_ON_CLAIM = '1484213244007682191';
 
-const tickets = new Map(); // Track user selections
+const tickets = new Map();
 
-// BOT READY
 client.once('ready', async () => {
-    console.log(`Logged in as ${client.user.tag}`);
+    console.log('Bot starting...');
 
     try {
         const channel = await client.channels.fetch(TICKET_CHANNEL);
@@ -45,30 +45,27 @@ client.once('ready', async () => {
             .setLabel('Open')
             .setStyle(ButtonStyle.Success);
 
-        // Send embed
-        await channel.send({ 
-            embeds: [embed], 
+        await channel.send({
+            embeds: [embed],
             components: [
-                new ActionRowBuilder().addComponents(select), 
+                new ActionRowBuilder().addComponents(select),
                 new ActionRowBuilder().addComponents(button)
-            ] 
+            ]
         });
+
         console.log('Ticket embed posted.');
     } catch (err) {
         console.error('Error posting ticket embed:', err);
     }
 });
 
-// HANDLE INTERACTIONS
 client.on('interactionCreate', async (interaction) => {
     try {
-        // Dropdown selection
         if (interaction.isStringSelectMenu() && interaction.customId === 'ticket-select') {
             tickets.set(interaction.user.id, interaction.values[0]);
             return interaction.reply({ content: `Selected: ${interaction.values[0]}`, ephemeral: true });
         }
 
-        // Open button
         if (interaction.isButton() && interaction.customId === 'ticket-open') {
             const selection = tickets.get(interaction.user.id);
             if (!selection) return interaction.reply({ content: 'Please select an option first!', ephemeral: true });
@@ -82,7 +79,7 @@ client.on('interactionCreate', async (interaction) => {
 
             const ticketChannel = await guild.channels.create({
                 name: ticketName,
-                type: 0, // GUILD_TEXT
+                type: 0,
                 parent: category,
                 permissionOverwrites: [
                     { id: guild.roles.everyone, deny: [PermissionsBitField.Flags.ViewChannel] },
@@ -109,7 +106,6 @@ client.on('interactionCreate', async (interaction) => {
             });
         }
 
-        // Claim button
         if (interaction.isButton() && interaction.customId === 'ticket-claim') {
             const channel = interaction.channel;
 
@@ -134,5 +130,4 @@ client.on('interactionCreate', async (interaction) => {
     }
 });
 
-// LOGIN BOT
 client.login(process.env.TOKEN);
